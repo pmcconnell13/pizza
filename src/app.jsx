@@ -82,6 +82,7 @@ const PizzaListEntry = (props) => {
 const PizzaFilters = (props) => {
   return(
     <div>
+      {/**The pizza filters are state because they change over time and they aren't computed from anything */}
       <h2>Pizza Filters</h2>
       <input type='text' placeholder="Topping"></input>
       <input type='number' min='0' placeholder='Orders'></input>
