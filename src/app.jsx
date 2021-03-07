@@ -30,23 +30,39 @@ const dummyData = {
       "orders": 1
     }
   ]
-}
+};
 
-//////////////////////////Tried dynamic rendering but unsure how to do it for such specific tags
-const PizzaList = (props) => {
+const PizzaList = ({ pizzas, topping, order }) => {
+  const cards = [];
+  console.log(pizzas)
+
+  pizzas
+  .sort((a, b) => a.rank - b.rank)
+  .forEach((pizza) => {
+      pizza.toppings.forEach(top => {
+      if (top.indexOf(topping) !== -1) {
+        if (pizza.orders > order) {
+          if (cards.filter(card =>
+            card.rank === pizza.rank
+          ).length === 0)
+          cards.push(pizza)
+        }
+      }
+    })
+  })
+
+
+  console.log(cards)
   return(
     <div>
-      {dummyData.pizzas
-      .sort((a, b) => a.rank - b.rank)
-      .map((pizza) => (
-        <PizzaListEntry pizza={pizza} key={dummyData.pizzas.rank} />
+      {cards.map(card => (
+        <PizzaListEntry pizza={card} key={card.rank} />
       ))}
     </div>
   )
-};
+}
 
 const PizzaListEntry = (props) => {
-  console.log(props)
   const orders = props.pizza.orders;
   const rank = props.pizza.rank;
   const toppings = props.pizza.toppings
@@ -79,27 +95,53 @@ const PizzaListEntry = (props) => {
   )
 };
 
-const PizzaFilters = (props) => {
+class PizzaFilters extends React.Component {
+
+  render() {
+    const topping = this.props.topping;
+    const order = this.props.order;
+    const handleInputChange = this.props.handleInputChange;
   return(
-    <div>
+    <form>
       {/**The pizza filters are state because they change over time and they aren't computed from anything */}
       <h2>Pizza Filters</h2>
-      <input type='text' placeholder="Topping"></input>
-      <input type='number' min='0' placeholder='Orders'></input>
-    </div>
+      <input type='text' name="topping" placeholder="Topping" value={topping} onChange={handleInputChange}></input>
+      <input type='number' name="order" min='0' placeholder='Order' value={order} onChange={handleInputChange}></input>
+    </form>
   )
+  }
 };
 
-const App = () => (
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      topping: '',
+      order: 0
+    }
+
+    this.handleInputChange = this.handleInputChange.bind(this);
+  }
+
+handleInputChange(e){
+  this.setState({
+    [e.target.name]: e.target.value
+  })
+}
+
+  render() {
+  return(
   <div>
     <h1>Simple Pizza Tracker Mockup!</h1>
-    <PizzaFilters />
-    <PizzaList />
+    <PizzaFilters topping={this.state.topping} order={this.state.order} handleInputChange={this.handleInputChange}/>
+    <PizzaList pizzas={this.props.dummyData.pizzas} topping={this.state.topping} order={this.state.order}/>
   </div>
-)
+  )
+  }
+}
 
 
-ReactDOM.render(<App />, document.getElementById('app'))
+ReactDOM.render(<App dummyData={dummyData}/>, document.getElementById('app'))
 
 //component Hierarchy
 /*
